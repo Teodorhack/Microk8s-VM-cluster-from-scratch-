@@ -1,0 +1,110 @@
+
+
+Step 1: Install MicroK8s
+#sudo snap install microk8s --classic --channel=1.31
+
+
+
+
+
+
+Step 2: Add Your Current User to the Group
+To add your current user to the group and gain access to the .kube caching directory, run the following three commands:
+
+#sudo usermod -a -G microk8s $USER
+#mkdir -p ~/.kube
+#chmod 0700 ~/.kube
+#su - $YOUR_USER
+
+
+
+
+
+
+Step 3: Check the Status of MicroK8s
+Check the status to make sure MicroK8s is ready:
+
+#microk8s status --wait-ready
+
+
+
+
+Step 4: See Your Nodes
+At this point, only one node should be displayed. Use this command to check:
+
+#microk8s kubectl get nodes
+
+Kubectl is a command-line tool used to interact with a Kubernetes cluster. It helps you manage and control resources in the cluster, such as pods, nodes, services, and more.
+
+
+
+
+
+
+
+Step 5: See Your Services
+To see all the running services, use:
+
+#microk8s kubectl get services
+
+
+
+
+
+Step 6: Add an Alias for kubectl
+MicroK8s uses a namespaced kubectl command to avoid conflicts with any existing installations of kubectl. If you don’t have another kubectl installed, it’s easier to add an alias (append it to your ~/.bash_aliases):
+
+#alias kubectl='microk8s kubectl'
+
+From now on, whenever you type kubectl, the system will know you’re referring to microk8s kubectl.
+
+
+
+
+
+Step 7: Deploying an App or Service
+In Kubernetes, a deployment is like an "instruction" that you give to Kubernetes to tell it: "I want to run this application." Kubernetes will automatically start the application, monitor it to ensure it’s always running, and even restart it if something goes wrong.
+
+What is Nginx?
+Nginx is a software application that handles multiple things, but in your case, it’s like a waiter. Nginx takes requests from the internet (for example, someone trying to access a website) and delivers web pages back (like bringing food to your table). In your case, Nginx will serve a simple webpage, nothing complicated.
+
+Deploy an Nginx demo app with the following command:
+
+#microk8s kubectl create deployment nginx --image=nginx
+
+The command nginx --image=nginx includes two important things:
+
+nginx (before --image) is the name of the application you are creating and running in Kubernetes.
+--image=nginx tells Kubernetes which Docker image to use. In this case, nginx refers to the official Nginx image from Docker Hub.
+It might take a minute or two to install, but you can check the status using:
+
+#microk8s kubectl get pods
+
+In summary:
+
+Nginx is an application that serves web pages.
+The command tells Kubernetes to install and run Nginx.
+You can verify that Nginx is running by checking the pods.
+Step 8: Use Add-ons Like DNS
+MicroK8s uses a minimal set of components for a pure, lightweight Kubernetes experience. However, you can easily add extra features like DNS and storage using add-ons. These are pre-packaged components that give your Kubernetes extra capabilities, from basic DNS management to advanced machine learning with Kubeflow!
+
+To get started, it’s recommended to add DNS management to facilitate communication between services. If your application needs storage, the hostpath-storage add-on provides directory space on the host.
+
+Enable the add-ons using these commands:
+
+#microk8s enable dns
+#microk8s enable hostpath-storage
+
+
+
+
+
+
+
+
+Step 8: Manage Your Cluster - Start/Stop and Check Status
+You can check the status of MicroK8s or start/stop it using the following commands:
+
+#microk8s status
+#microk8s stop
+#microk8s start

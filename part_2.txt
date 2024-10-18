@@ -1,0 +1,163 @@
+***Deploying a Service and Hosting a Website on Kubernetes with MicroK8s
+
+
+
+
+
+
+
+
+
+
+
+
+
+Now that you have a fully functional cluster, it's time to deploy a service and host a website. So, stay hydrated and let's get started!
+
+Step 1: Configuring Firewall and User Permissions
+First, although it's generally not recommended, we will disable the firewall for the purpose of this project.
+
+sudo ufw allow in on cni0 && sudo ufw allow out on cni0
+sudo ufw default allow routed
+
+
+
+Next, we’ll add your user to the microk8s admin group:
+
+sudo usermod -a -G microk8s <UserId>
+sudo chown -R <UserId> ~/.kube
+
+
+
+If you encounter any issues, you can simply reboot:
+
+sudo reboot
+
+
+
+Now, disable swap using this command:
+
+sudo sed -i '/ swap / s/^/#/' /etc/fstab
+
+Purpose of this command:
+This command disables swap on your Linux system. Swap is a disk space used by the operating system when it runs out of RAM. In Kubernetes (including MicroK8s), swap needs to be disabled to avoid conflicts and unexpected behavior, as Kubernetes relies on a predictable memory management system.
+
+By disabling swap, you ensure Kubernetes handles memory usage properly.
+
+
+
+
+
+
+Step 2: Networking
+To expose the services running in your Kubernetes cluster, we’ll use MetalLB (a load balancer) and Ingress (which acts as a "door" for incoming traffic). Make sure that both are enabled.
+
+Enabling Ingress and MetalLB
+Enable Ingress:
+#microk8s enable ingress
+
+
+Enable MetalLB:
+#microk8s enable metallb
+Next, you’ll need to provide an IP range for MetalLB. For example, if your network uses addresses between 192.168.1.100 and 192.168.1.120, you will provide this range when prompted.
+
+
+Applying the Ingress Service YAML
+In the repository, you’ll find a file named ingress-service.yaml, which defines a LoadBalancer service for Ingress. To apply this configuration, use the following command:
+
+#microk8s kubectl apply -f ingress-service.yaml
+
+
+
+
+
+Step 3: Checking Ingress Class
+
+
+
+Now, let’s check which ingress classes are available in your cluster:
+
+#microk8s kubectl get ingressclass
+
+You should see an output like this:
+
+NAME CONTROLLER PARAMETERS AGE
+nginx k8s.io/ingress-nginx <none> 12h
+public k8s.io/ingress-nginx <none> 12h
+
+Look for nginx in the output, which confirms the Ingress is set up correctly.
+
+
+
+
+
+
+
+
+
+
+Step 4: Deploying a Test Application
+To test the setup, let’s deploy an HTTP server as a demo application:
+
+Create a new namespace called day1:
+#microk8s kubectl create ns day1
+
+Create a deployment named demo using the httpd Docker image:
+#microk8s kubectl create deployment demo --image=httpd --port=80 -n day1
+
+Expose the deployment:
+#microk8s kubectl expose deployment demo -n day1
+
+
+
+
+
+Step 5: Exposing the Service Outside the Cluster
+
+Now, let's create an Ingress rule to expose the service to the outside world. You can refer to the official Kubernetes documentation for more information: https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules
+
+
+In the repository, you’ll also find the ingress-rule.yaml file, which defines the rule for external access to the service.
+
+Apply the Ingress rule with the following command:
+
+#microk8s kubectl apply -f ingress-rule.yaml
+
+
+
+
+
+
+
+Step 6: Checking the Results
+Let’s see if everything works!
+
+Check the external IP allocated by MetalLB:
+microk8s kubectl get svc -n ingress
+You should see an output like this:
+
+NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE
+ingress LoadBalancer 10.152.183.105 192.168.1.200 80:31461/TCP,443:30680/TCP 11h
+
+The EXTERNAL-IP column shows the IP address you can use to access your service.
+
+Access your service:
+Open your web browser and go to:
+http://<EXTERNAL-IP>/day1
+Replace <EXTERNAL-IP> with the IP address you obtained from the previous command. You should see a response from the test web server (httpd).
+
+Wrapping Up Day 1
+At this point, you should have:
+
+A highly available MicroK8s cluster: If any node fails, the cluster will continue running as long as at least 2 nodes are still operational.
+A deployed test application: You’ve successfully exposed a simple HTTP server to verify that your cluster setup is working properly.
+This marks the end of Day 1. Now you can move on to more advanced setups!
+
+
+
+END!
+
+
+
+
+

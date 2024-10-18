@@ -1,0 +1,37 @@
+Step 1: Setting Up Virtual Machines
+To start, you’ll need at least 3 virtual machines. I used VirtualBox as the virtualization software for this project. I recommend using Ubuntu 20.04.6 as the operating system.
+
+If this is your first time working with virtual machines, here is a comprehensive guide to help you install Ubuntu on VirtualBox: How to Install Ubuntu on VirtualBox: https://www.geeksforgeeks.org/how-to-install-ubuntu-on-virtualbox/
+
+For optimal performance, depending on your host machine, I recommend allocating more resources to one of the VMs, which will act as the master node. For example:
+
+Master Node: 6GB RAM, 5 CPU cores, 200GB hard disk (I used a 2TB external SSD for this project).
+Worker Nodes: At least 2GB RAM and 2 CPU cores.
+Make sure to give each VM a descriptive name, so you can easily identify which is the master and which are the worker nodes.
+
+Step 2: Configuring Networking
+Now that you have the three virtual machines ready, you need to ensure that they can communicate with each other.
+
+How to set up the network:
+Open VirtualBox, go to the Network Manager (like shown in the attached image), and create a NAT network.
+Then, go to each VM’s settings and configure the network to use the NAT network (as shown in the second image).
+Verifying communication:
+Use the ifconfig command on each VM to see the IP addresses that have been assigned. If the VMs can ping each other, everything is set up correctly. The interface that has the IP should be enp0s3.
+
+Step 3: Preparing for Clustering with MicroK8s
+Now that you have three virtual machines ready and networked, it's time to set up clustering services. We will use MicroK8s, a lightweight Kubernetes distribution designed for small-scale projects like ours, where resources are limited.
+
+For installation, follow the official MicroK8s documentation at this link: MicroK8s Getting Started Guide:  https://microk8s.io/docs/getting-started . Additionally, I will provide a separate .txt file with all the necessary commands in case you want to skip reading the full documentation.
+
+Step 4: Configuring MicroK8s on the Master Node
+In this step, we will configure MicroK8s on the master node. You can find all the necessary steps in the file commands_for_installing_microk8s.txt. Once you've finished setting up the master node, return to this guide.
+
+Step 5: Building the Cluster - Adding Worker Nodes
+Now that the master node is configured, it's time to add the worker nodes to the cluster.
+
+For detailed instructions, please refer to the file adding_nodes.txt.
+
+Step 6: Celebrate!
+Congratulations! At this point, you have successfully set up a functioning MicroK8s cluster with one master node and two worker nodes.
+
+Great job! Now let’s move on to the next steps.

@@ -1,0 +1,129 @@
+Cluster Requirements
+Each node in a MicroK8s cluster requires its own environment to work, whether that is a separate VM, a container on a single machine, or a different machine on the same network. It is important to note that, like almost all networked services, these nodes must have the correct time synchronization (e.g., updated via an NTP server) for inter-node communication to work properly.
+
+
+Although MicroK8s is designed as a lightweight implementation of Kubernetes, creating a MicroK8s cluster can still be useful. This guide explains how to add and remove nodes and what is required to make the cluster highly available (HA).
+
+
+
+
+
+Step 1: Adding Nodes to the Cluster
+To add a new node to the cluster, run the following command on the master node:
+
+#microk8s add-node
+
+After running this command, you will receive instructions to run on the node you want to join to the cluster. The second line in the output is the one you will need to enter on the new node, adding the --worker flag if it’s a worker node.
+
+For example, you might receive this output:
+
+From the node you wish to join to this cluster, run the following: microk8s join 192.168.1.230:25000/92b2db237428470dc4fcfc4ebbd9dc81/2c0cb3284b05
+Use the --worker flag to join a node as a worker not running the control plane, eg:
+microk8s join 192.168.1.230:25000/92b2db237428470dc4fcfc4ebbd9dc81/2c0cb3284b05 --worker
+
+
+
+
+
+
+
+Step 2: Verifying the Nodes
+After adding a node, verify that it has been added successfully by running:
+
+#microk8s kubectl get no
+
+The output should look like this:
+
+
+NAME               STATUS   ROLES    AGE   VERSION  
+10.22.254.79       Ready    <none>   27s   v1.15.3  
+ip-172-31-20-243   Ready    <none>   53s   v1.15.3  
+
+
+
+
+Step 3: Removing a Node
+To remove a node from the cluster, run the following command on the node you want to remove:
+
+#microk8s leave
+
+To complete the removal, go back to one of the remaining nodes in the cluster and run this command to inform the cluster that the node should be removed permanently:
+
+#microk8s remove-node 10.22.254.79
+
+
+
+
+
+
+Step 4: Storage
+I have not configured custom storage for my cluster, but if you are interested, you can find documentation and a guide for setting up storage with NFS here:
+https://microk8s.io/docs/how-to-nfs
+
+
+
+
+
+
+
+
+
+
+Step 5: High Availability (HA)
+Starting from version 1.19, MicroK8s has HA enabled by default. If your cluster consists of three or more nodes, the datastore will be replicated across the nodes, and the cluster will be resilient to a single node failure. This means if one node goes down, the workloads will continue to run without interruption.
+
+To check the HA status of your cluster, you can run:
+
+#microk8s status
+
+You should see an output like this:
+
+
+microk8s is running  
+high-availability: yes  
+  datastore master nodes: 10.128.63.86:19001 10.128.63.166:19001 10.128.63.43:19001  
+  datastore standby nodes: none  
+For more information, you can check the official documentation here:
+https://microk8s.io/docs/high-availability
+
+
+To enable HA manually, run the following command:
+
+#microk8s enable ha-cluster
+
+If you already have nodes in your cluster, they will need to exit and rejoin to enable HA. This process involves draining, removing, and rejoining the nodes one by one.
+
+
+
+
+
+
+
+
+
+Step 6: Upgrading an Existing Cluster
+If you are upgrading an existing cluster to enable HA, ensure that all nodes are updated to version 1.19 or higher. You can update each node by running:
+
+#sudo snap refresh microk8s --channel=1.19/stable
+
+Then, on the master node, enable HA with:
+
+#microk8s enable ha-cluster
+
+After this, each node will need to exit and rejoin the cluster to activate HA. You can do this by following these steps:
+
+Drain the node: #microk8s kubectl drain <node> --ignore-daemonsets
+
+On the node, run: #microk8s leave
+
+Re-enable HA with: #microk8s enable ha-cluster
+
+Rejoin the node to the cluster by following the same steps from Step 1 (adding nodes).
+
+
+
+
+
+
+
+END!
