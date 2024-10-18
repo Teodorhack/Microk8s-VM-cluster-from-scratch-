@@ -4,7 +4,7 @@
 
 How to use this guide?
 
-Read the part_1,2,3 txt files and they will lead you.
+Read the part_1,2,3 txt files that you can find in the step-2 branch and they will lead you.
 Keep in mind that this guidE was done so I can better understand this project and to share with you the experience of building a microk8s cluster. ENJOY
 
 Welcome to my **Home Lab** project! In this setup, I built a **High-Availability (HA) Kubernetes cluster** using **[MicroK8s](https://microk8s.io)** on **Ubuntu Server 24.04 LTS**. This lab is ideal for experimenting with Kubernetes in a small-scale environment. Here's a quick overview of what you'll find:
